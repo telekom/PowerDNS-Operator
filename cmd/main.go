@@ -268,33 +268,27 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "RRset")
 		os.Exit(1)
 	}
-	if watchNamespace == "" {
-		if err = (&controller.ClusterZoneReconciler{
-			Client: mgr.GetClient(),
-			Scheme: mgr.GetScheme(),
-			PDNSClient: controller.PdnsClienter{
-				Records: pdnsClient.Records,
-				Zones:   pdnsClient.Zones,
-			},
-		}).SetupWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create controller", "controller", "ClusterZone")
-			os.Exit(1)
-		}
-		if err = (&controller.ClusterRRsetReconciler{
-			Client: mgr.GetClient(),
-			Scheme: mgr.GetScheme(),
-			PDNSClient: controller.PdnsClienter{
-				Records: pdnsClient.Records,
-				Zones:   pdnsClient.Zones,
-			},
-		}).SetupWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create controller", "controller", "ClusterRRset")
-			os.Exit(1)
-		}
-	} else {
-		setupLog.Info("skipping ClusterZone and ClusterRRset reconcilers because " +
-			"WATCH_NAMESPACE is set; cluster-scoped CRDs are not compatible with " +
-			"namespace-scoped operation")
+	if err = (&controller.ClusterZoneReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+		PDNSClient: controller.PdnsClienter{
+			Records: pdnsClient.Records,
+			Zones:   pdnsClient.Zones,
+		},
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "ClusterZone")
+		os.Exit(1)
+	}
+	if err = (&controller.ClusterRRsetReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+		PDNSClient: controller.PdnsClienter{
+			Records: pdnsClient.Records,
+			Zones:   pdnsClient.Zones,
+		},
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "ClusterRRset")
+		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder
 
